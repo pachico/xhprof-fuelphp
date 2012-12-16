@@ -72,6 +72,7 @@ class Xhprof
 			goto end_function_ko;
 		}
 
+
 		/**
 		 * Checking for extensions that should not be profiled. This avoids 
 		 * also profiling 404 responses of missing assets
@@ -90,7 +91,7 @@ class Xhprof
 		/**
 		 * If profiler is set to never profile or hasn't been set, just don't profile
 		 */
-		if (\Config::get('xhprof.profile_on', Xhprof::XHPROF_PROFILE_NEVER) === Xhprof::XHPROF_PROFILE_NEVER)
+		if (\Config::get('xhprof.profile_policy', Xhprof::XHPROF_PROFILE_NEVER) === Xhprof::XHPROF_PROFILE_NEVER)
 		{
 			goto end_function_ko;
 		}
@@ -98,7 +99,7 @@ class Xhprof
 		/**
 		 * If profiler is set to never profile or hasn't been set, just don't profile
 		 */
-		if (\Config::get('xhprof.profile_on', Xhprof::XHPROF_PROFILE_NEVER) === Xhprof::XHPROF_PROFILE_ALWAYS)
+		if (\Config::get('xhprof.profile_policy', Xhprof::XHPROF_PROFILE_NEVER) === Xhprof::XHPROF_PROFILE_ALWAYS)
 		{
 			goto end_function_ok;
 		}
@@ -109,24 +110,23 @@ class Xhprof
 		 */
 		$cookie_name_fallover = 'XHPROF_FUELPHP';
 
-		if (\Config::get('xhprof.profile_on') === Xhprof::XHPROF_PROFILE_ON_DEMAND
-				and \Input::get(\Config::get('xhprof.get_parameter_activation')) === '1')
+		if (\Config::get('xhprof.profile_policy') === Xhprof::XHPROF_PROFILE_ON_DEMAND
+				&& \Input::get(\Config::get('xhprof.get_parameter_activation')) === '1')
 		{
 
-			\Fuel\Core\Cookie::set(\Config::get('xhprof.cookie_name', $cookie_name_fallover), true, time() - 68400, '/');
+			\Cookie::set(\Config::get('xhprof.cookie_name', $cookie_name_fallover), true, time() - 68400, '/');
 			$redirect_url = rtrim(str_ireplace(\Config::get('xhprof.get_parameter_activation') . '=1', '', \Input::server('REQUEST_URI')), '?');
 
 			\Response::redirect($redirect_url, 'refresh');
 		}
 
 		/**
-		 * User has set profiler off. 
+		 * User has set profiler on demand off. 
 		 * Delete cookie and refresh
 		 */
-		if (\Config::get('xhprof.profile_on') === Xhprof::XHPROF_PROFILE_ON_DEMAND
-				and \Input::get(\Config::get('xhprof.get_parameter_activation')) === '0')
+		if (\Config::get('xhprof.profile_policy') === Xhprof::XHPROF_PROFILE_ON_DEMAND
+				&& \Input::get(\Config::get('xhprof.get_parameter_activation')) === '0')
 		{
-			//\Fuel\Core\Cookie::set(\Config::get('xhprof.profile_on', $cookie_name_fallover), false, time() - 68400, '/');
 			\Cookie::delete(\Config::get('xhprof.cookie_name', $cookie_name_fallover));
 
 			$redirect_url = rtrim(str_ireplace(\Config::get('xhprof.get_parameter_activation') . '=0', '', \Input::server('REQUEST_URI')), '?');
@@ -134,13 +134,22 @@ class Xhprof
 			\Response::redirect($redirect_url, 'refresh');
 		}
 
-		\Config::get('xhprof.ignored_extensions');
+		/**
+		 * User has set profiler on demand and cookie with true value is found.
+		 * Approved to be profiled
+		 */
+		if (\Config::get('xhprof.profile_policy') === Xhprof::XHPROF_PROFILE_ON_DEMAND
+				&& \Cookie::get(\Config::get('xhprof.cookie_name')) === '1')
+		{
+			goto end_function_ok;
+		}
+
+		
+		end_function_ko:
+		return false;
 
 		end_function_ok:
 		return true;
-
-		end_function_ko:
-		return false;
 
 	}
 

@@ -13,12 +13,12 @@
  */
 return array(
 	/**
-	 * Possible profiling modes are:
+	 * Possible profiling policies are:
 	 * \Xhprof\Xhprof::XHPROF_PROFILE_ALWAYS
 	 * \Xhprof\Xhprof::XHPROF_PROFILE_ON_DEMAND
 	 * \Xhprof\Xhprof::XHPROF_PROFILE_NEVER
 	 */
-	'profile_on' => \Xhprof\Xhprof::XHPROF_PROFILE_ALWAYS,
+	'profile_policy' => \Xhprof\Xhprof::XHPROF_PROFILE_ON_DEMAND,
 	/**
 	 * Allowed flags are:
 	 * XHPROF_FLAGS_CPU: Profiles CPU time
@@ -31,13 +31,15 @@ return array(
 	 * Alternatively any event step can be specified. Allowed steps are:
 	 * http://fuelphp.com/docs/classes/event.html
 	 * Make sure start event comes before end event
+	 * Example: 'start_profiling_event' => 'request_started',
 	 */
-	'start_profiling_event' => 'controller_finished',
+	'start_profiling_event' => null,
 	/**
 	 * If set to null XHPROF will stop profiling at shutdown event.
 	 * Alternatively any event step can be specified. Allowed steps are:
 	 * http://fuelphp.com/docs/classes/event.html
 	 * Make sure start event comes before end event
+	 * Example: 'end_profiling_event' => 'controller_finished,
 	 */
 	'end_profiling_event' => null,
 	/**
@@ -51,10 +53,12 @@ return array(
 	'get_parameter_activation' => '_profile',
 	/**
 	 * Array of function names that will be ignored during profile data collection
+	 * Example:
+	 * 'ignored_functions' => array(
+	 *	'call_user_func',
+	 *	'call_user_func_array'),
 	 */
-	'ignored_functions' => array(
-		'call_user_func',
-		'call_user_func_array'),
+	'ignored_functions' => null,
 	/**
 	 * Most likely Fuel will take care of your 404, which means xhprof will
 	 * try to profile the 404 response page for assets that might not exist.
