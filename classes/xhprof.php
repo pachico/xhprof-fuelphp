@@ -39,12 +39,6 @@ class Xhprof
 	protected static $_is_profilable = false;
 
 	/**
-	 *
-	 * @var \Xhprof\Engine
-	 */
-	protected static $_profiler = null;
-
-	/**
 	 * Method called automatically from fuel.
 	 * I'll check if it's possible even to profile
 	 */
@@ -97,7 +91,7 @@ class Xhprof
 		}
 
 		/**
-		 * If profiler is set to never profile or hasn't been set, just don't profile
+		 * If profiler is set to always profile then profile
 		 */
 		if (\Config::get('xhprof.profile_policy', Xhprof::XHPROF_PROFILE_NEVER) === Xhprof::XHPROF_PROFILE_ALWAYS)
 		{
